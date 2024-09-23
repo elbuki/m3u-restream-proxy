@@ -1,14 +1,15 @@
-version: '3'
 services:
   vpn-server:
-    image: walt3rl/proton-privoxy
+    image: qmcgaw/gluetun
+    platform: linux/amd64
     volumes:
       - /etc/localtime:/etc/localtime:ro
     environment:
-      - PVPN_USERNAME=/run/secrets/pvpn_username
-      - PVPN_PASSWORD=/run/secrets/pvpn_password
-      - PVPN_TIER=0
-      - PVPN_CMD_ARGS=connect --cc US
+      - VPN_SERVICE_PROVIDER=protonvpn
+      - OPENVPN_USER=REDACTED_USER
+      - OPENVPN_PASSWORD=REDACTED_PASSWORD
+      - FREE_ONLY=on
+      - SERVER_COUNTRIES="United States"
     cap_add:
       - NET_ADMIN
     devices:
@@ -22,9 +23,6 @@ services:
       timeout: 10s
       retries: 5
       start_period: 30s
-    secrets:
-      - pvpn_username
-      - pvpn_password
 
   restreamer:
     image: quay.io/galexrt/vlc
@@ -37,9 +35,3 @@ services:
         condition: service_healthy
         restart: true
     network_mode: service:vpn-server  # Use the VPN container's network
-
-secrets:
-  pvpn_username:
-    file: secrets/pvpn_username.txt
-  pvpn_password:
-    file: secrets/pvpn_password.txt
